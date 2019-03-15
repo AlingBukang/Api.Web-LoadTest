@@ -1,0 +1,6 @@
+{
+  "appType" : "private",
+  "consumerKey": "NSWCHBR1Z11SJHEPGXTMKDCN5B9KOL", 
+  "consumerSecret": "LRBNWLCZSM0HY5HCJVHNJO1UFKRC6V",
+  "privateKeyPath": "C:\\Dev\\LoadTest\\certs\\privatekey.pem"
+}

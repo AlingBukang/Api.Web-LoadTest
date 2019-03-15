@@ -1,0 +1,22 @@
+{
+  "name": "API.Web-LoadTest",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "artillery": "^1.6.0-27",
+    "artillery-plugin-prometheus": "^1.1.0",
+    "artillery-plugin-publish-metrics": "^1.0.1",
+    "jshint": "^2.10.1",
+    "jsrsasign": "^8.0.12",
+    "oauth": "^0.9.15",
+    "oauth-signature": "^1.5.0",
+    "rsa-key": "^0.0.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

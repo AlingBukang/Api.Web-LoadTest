@@ -1,0 +1,116 @@
+config:
+  target: ''
+  http:
+    pool: 10 # All HTTP requests from all virtual users will be sent over the same 10 connections
+    timeout: 10
+  variables:
+    eco1_target:
+      - "https://api.eco1.xero-test.com"
+    livestage_target:
+      - "https://api.livestage6.test.xero.com"   
+    endpoints:
+      - ["invoices", "organisation", "accounts"]  
+      - ["banktransactions", "banktransfers", "brandingthemes"]
+      - ["contactgroups", "contacts", "currencies"]
+      - ["creditnotes", "employees", "expenseclaims"]
+      - ["items", "manualjournals", "journals"]
+      - ["receipts", "repeatinginvoices", "reports"]
+      - ["overpayments", "taxrates", "users"]
+      - ["payments", "prepayments", "purchaseorders"]
+      - ["trackingcategories"]
+      # - ["organisation"]
+  environments:
+    # Describe an environment that we'll refer to as "dev". This is the name
+    # we will use with the --environment flag in artillery run command
+    # See https://artillery.io/docs/cli-reference/#run for details
+    eco1:
+      target: "https://api.eco1.xero-test.com"
+    livestage:
+      target: "https://api.livestage6.test.xero.com"
+    #prod:
+    #  target: 'https://api.xero.com'  
+  phases:
+    # - duration: 100
+    #   arrivalRate: 100
+    #   name: "Test run"
+    - duration: 100
+      arrivalRate: 3
+      rampTo: 10
+      name: "Warm up the application"
+    - pause: 5
+    - duration: 600
+      arrivalRate: 50
+      # rampTo: 80
+      name: "Ramp to high load"  
+    - pause: 5
+    - duration: 1200
+      arrivalRate: 100
+      name: "Sustained max load"
+  processor: "./index_private.js" 
+  plugins:
+    # publish-metrics:
+    #   - type: statsd
+    #     host: localhost
+    #     port: 8125
+    #     #apiKey: "{{ $processEnvironment.DD_API_KEY }}"
+    #     prefix: artillery.
+    #     # tags:
+    #     #   - team:GuidCollision
+    #     #   - component:Api.Web
+    #     # event:
+    #     #   tags:
+    #     #     - team:GuidCollision
+    prometheus:
+      - testName: 'my_load_test_case'
+      - pushGatewayUrl: 'http://localhost:9090'
+      - environment: 'livestage6'
+  #99% of calls will complete in 200ms or less
+  #No more than 0.1% of calls will fail (defined as a non 2xx response code)  - how about 503 and redirection???   
+  #Once the test run is over, Artillery will compare the actual metrics with the objectives, and if they’re higher 
+  #(e.g. p99 latency is over 200ms), the CLI will exit with a non-zero exit code, which will in turn fail the CI/CD pipeline job.     
+  ensure:
+    p99: 200
+    maxErrorRate: 1%
+scenarios:
+  - name: Endpoint Requests - {{ $loopElement }}
+    flow:
+    - loop:
+      #Call some pre-request function
+      #- function: "fireAll"
+      #- log: "Current environment is set to: {{ $environment }}"
+      - get:
+          url: "/api.xro/2.0/{{ $loopElement }}"
+          expect:
+            - statusCode: 200
+          beforeRequest: "getAccountingHeader"
+          afterResponse: "logResponseHeaders"
+          capture:
+            # capturing responce using reg expression
+            - regexp: "[^]*"
+              as: "response"
+      over: endpoints  
+    # - post:
+    #     url: "/api.xro/2.0/organisation"
+    #     expect:
+    #       - statusCode: 200
+    #     beforeRequest: "generateErrors"
+    #     afterResponse: "logResponseHeaders"
+    #     capture:
+    #       # capturing responce using reg expression
+    #       - regexp: "[^]*"
+    #         as: "response"   
+    # - loop:       
+    #   - get:
+    #       url: "/payroll.xro/2.0/{{ $loopElement }}"
+    #       expect:
+    #         - statusCode: 200
+    #       beforeRequest: "getPayrollHeader"
+    #       afterResponse: "logResponseHeaders"
+    #       capture:
+    #         # capturing responce using reg expression
+    #         - regexp: "[^]*"
+    #           as: "response"        
+    #   over: endpoints
+      # count : 2 
+    - think: 3
+    # - log: "response= {{response}}"
