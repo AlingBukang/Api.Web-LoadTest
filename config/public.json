@@ -1,6 +1,6 @@
 {
   "appType": "public",
-  "consumerKey": "DOIFO148HRXTR7TZUU36PE85QA8HAN",
-  "consumerSecret": "LQADHBHUGLKYIHQBR2Z58NJNBCCFBN",
+  "consumerKey": "",
+  "consumerSecret": "",
   "callbackUrl": "http://localhost:4000/callback"
 }
